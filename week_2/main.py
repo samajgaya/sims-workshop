@@ -19,6 +19,8 @@ from enum import IntEnum
 import numpy as np
 import pygame
 
+import random
+
 
 class Material(IntEnum):
     """Every cell in the grid holds one of these values.
@@ -127,7 +129,35 @@ class SandSim:
         that already moved. Copy the grid before the loop, read from the
         copy, and write the result into the live grid (or vice versa).
         """
-        raise NotImplementedError("implement the physics, then delete this line")
+        f = self._types
+        b = f.copy()
+        h, w = f.shape
+        perm = np.random.permutation(w)
+        
+        def empty(i, j):
+            if i >= 0 and i < h and j >= 0 and j < w and f[i,j] == Material.EMPTY:
+                return (i, j)
+            return None
+
+        for i in range(h - 2, -1, -1):
+            for j in perm:
+                if f[i, j] != Material.SAND:
+                    continue
+
+                down = empty(i + 1, j)
+                if down:
+                    newpos = [down]
+                else:
+                    newpos = [p for p in (empty(i + 1, j - 1), empty(i + 1, j + 1)) if p]
+                    random.shuffle(newpos)
+
+                for pos in newpos:
+                    if b[pos] == Material.EMPTY:
+                        b[i, j] = Material.EMPTY
+                        b[pos] = Material.SAND
+                        break
+        
+        self._types = b
 
     # ------------------------------------------------------------------ #
     # Rendering (boilerplate — nothing to do here)
