@@ -63,7 +63,7 @@ class SandSim:
     ``x`` (0 = left).
     """
 
-    def __init__(self, width: int, height: int, cell_size: int = 4, fps: int = 60) -> None:
+    def __init__(self, width: int, height: int, cell_size: int = 4, fps: int = 120) -> None:
         self.cell_size = cell_size
         self.fps = fps
         self.brush = Material.SAND
@@ -130,7 +130,8 @@ class SandSim:
         copy, and write the result into the live grid (or vice versa).
         """
         f = self._types
-        b = f.copy()
+        b = f
+        # b = f.copy(), FIXME: sim looks better without double buffering?
         h, w = f.shape
         perm = np.random.permutation(w)
         
