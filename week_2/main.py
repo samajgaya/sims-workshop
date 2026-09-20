@@ -131,8 +131,9 @@ class SandSim:
         copy, and write the result into the live grid (or vice versa).
         """
 
+        # FIXME: double buffering makes the sim look worse?
+        #        disabled it for now
         f = self._types
-        b = f
         h, w = f.shape
         moved = np.zeros((h, w), dtype=bool)
         perm = np.random.permutation(w)
@@ -147,20 +148,21 @@ class SandSim:
         for i in range(h - 1, -1, -1):
             for j in perm:
                 m = f[i, j]
-                if m == Material.EMPTY or m == Material.WALL or moved[i, j]:
+                if m in (Material.EMPTY, Material.WALL) or moved[i, j]:
                     continue
 
-                if   dst := pick([(i + 1, j)]): pass
-                elif dst := pick([(i + 1, j - 1), (i + 1, j + 1)]): pass
-                elif m == Material.WATER and (dst := pick([(i, j - 1), (i, j + 1)])): pass
-                else:
-                    dst = None
+
+                dst = pick([(i + 1, j)])
+                if dst is None:
+                    dst = pick([(i + 1, j - 1), (i + 1, j + 1)])
+                if dst is None and m == Material.WATER:
+                    dst = pick([(i, j - 1), (i, j + 1)])
 
                 if dst is not None:
-                    b[i, j], b[dst] = f[dst], f[i, j]
+                    f[i, j], f[dst] = f[dst], f[i, j]
                     moved[dst] = True
-            
-        self._types = b
+
+        self._types = f
 
     # ------------------------------------------------------------------ #
     # Rendering (boilerplate — nothing to do here)
