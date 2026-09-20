@@ -132,53 +132,35 @@ class SandSim:
         """
 
         f = self._types
-        back = f
+        b = f
         h, w = f.shape
+        moved = np.zeros((h, w), dtype=bool)
         perm = np.random.permutation(w)
-        
-        def empty(a):
-            i, j = a[0], a[1]
-            if i >= 0 and i < h and j >= 0 and j < w and f[i,j] == Material.EMPTY:
-                return (i, j)
-            return None
-        
-        def choose(current, a, b):
 
-            if empty(a) and empty(b):
-                x = random.choice((b, a))
-                back[x], back[current] = back[current], back[x]
-            elif empty(b):
-                back[b], back[current] = back[current], back[b]
-            elif empty(a):
-                back[a], back[current] = back[current], back[a]
-            else:
-                return False
-            return True
-        
-        RIGHT = np.array([0,  1])
-        LEFT =  np.array([0, -1])
+        def empty(i, j):
+            return 0 <= i < h and 0 <= j < w and f[i, j] == Material.EMPTY
 
-        for i in range(h - 2, -1, -1):
+        def pick(opts):
+            opts = [p for p in opts if empty(*p)]
+            return random.choice(opts) if opts else None
+
+        for i in range(h - 1, -1, -1):
             for j in perm:
-                c = (i, j)
-
-                if back[c] == Material.EMPTY or back[c] == Material.WALL:
+                m = f[i, j]
+                if m == Material.EMPTY or m == Material.WALL or moved[i, j]:
                     continue
 
-                i_ = i + 1
-                br = (i_, j + 1)
-                bl  = (i_, j - 1)
-                l = (i, j - 1)
-                r = (i, j + 1)
+                if   dst := pick([(i + 1, j)]): pass
+                elif dst := pick([(i + 1, j - 1), (i + 1, j + 1)]): pass
+                elif m == Material.WATER and (dst := pick([(i, j - 1), (i, j + 1)])): pass
+                else:
+                    dst = None
 
-                if empty((i_, j)):
-                    back[c], back[i_, j] = back[i_, j], back[c]
-                elif choose(c, br, bl):
-                    pass
-                elif back[c] == Material.WATER:
-                    choose(c, l, r)
-        
-        self._types = back
+                if dst is not None:
+                    b[i, j], b[dst] = f[dst], f[i, j]
+                    moved[dst] = True
+            
+        self._types = b
 
     # ------------------------------------------------------------------ #
     # Rendering (boilerplate — nothing to do here)
