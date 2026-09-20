@@ -35,7 +35,7 @@ class Material(IntEnum):
     WATER = 2
 
     # BONUS: add more materials here, e.g.
-    # WALL = 3   (immovable — never update it)
+    WALL = 3
     # FIRE = 4   (lives a few ticks, then becomes EMPTY)
     # SMOKE = 5  (rises instead of falling, then fades)
 
@@ -45,6 +45,7 @@ PALETTE = {
     Material.EMPTY: (0, 0, 0),
     Material.SAND: (194, 178, 128),
     Material.WATER: (52, 120, 235),
+    Material.WALL: (112, 65, 29),
 }
 # Turned into a NumPy array so that looking up a cell's colour is a single
 # fast indexing operation: COLORS[grid] gives the RGB value of every cell.
@@ -161,7 +162,7 @@ class SandSim:
             for j in perm:
                 c = (i, j)
 
-                if back[c] == Material.EMPTY:
+                if back[c] == Material.EMPTY or back[c] == Material.WALL:
                     continue
 
                 i_ = i + 1
@@ -222,6 +223,8 @@ def main() -> None:
                     sim.brush = Material.SAND
                 elif k == pygame.K_2:
                     sim.brush = Material.WATER
+                elif k == pygame.K_3:
+                    sim.brush = Material.WALL
                 elif k in (pygame.K_0, pygame.K_e):
                     sim.brush = Material.EMPTY
                 elif k == pygame.K_LEFTBRACKET:
