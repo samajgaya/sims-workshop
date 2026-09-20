@@ -19,8 +19,6 @@ from enum import IntEnum
 import numpy as np
 import pygame
 
-import random
-
 
 class Material(IntEnum):
     """Every cell in the grid holds one of these values.
@@ -63,7 +61,7 @@ class SandSim:
     ``x`` (0 = left).
     """
 
-    def __init__(self, width: int, height: int, cell_size: int = 4, fps: int = 120) -> None:
+    def __init__(self, width: int, height: int, cell_size: int = 4, fps: int = 60) -> None:
         self.cell_size = cell_size
         self.fps = fps
         self.brush = Material.SAND
@@ -109,7 +107,6 @@ class SandSim:
     # ------------------------------------------------------------------ #
     def update(self) -> None:
         """Advance the simulation by one tick. This is YOUR job.
-
         Rules to implement:
 
         * Process rows from the BOTTOM up (y = height-1 .. 0). If you go top
@@ -130,54 +127,32 @@ class SandSim:
         copy, and write the result into the live grid (or vice versa).
         """
 
-        f = self._types
-        back = f
-        h, w = f.shape
-        perm = np.random.permutation(w)
         
-        def empty(a):
-            i, j = a[0], a[1]
-            if i >= 0 and i < h and j >= 0 and j < w and f[i,j] == Material.EMPTY:
-                return (i, j)
-            return None
-        
-        def choose(current, a, b):
-
-            if empty(a) and empty(b):
-                x = random.choice((b, a))
-                back[x], back[current] = back[current], back[x]
-            elif empty(b):
-                back[b], back[current] = back[current], back[b]
-            elif empty(a):
-                back[a], back[current] = back[current], back[a]
-            else:
-                return False
-            return True
-        
-        RIGHT = np.array([0,  1])
-        LEFT =  np.array([0, -1])
-
-        for i in range(h - 2, -1, -1):
-            for j in perm:
-                c = (i, j)
-
-                if back[c] == Material.EMPTY:
+        s = self._types
+        nx = np.random.permutation(self.width)
+        for x in nx:
+            for y in range(self.height - 2, -1, -1):
+                if s[y, x] != Material.SAND:
                     continue
 
-                i_ = i + 1
-                br = (i_, j + 1)
-                bl  = (i_, j - 1)
-                l = (i, j - 1)
-                r = (i, j + 1)
-
-                if empty((i_, j)):
-                    back[c], back[i_, j] = back[i_, j], back[c]
-                elif choose(c, br, bl):
-                    pass
-                elif back[c] == Material.WATER:
-                    choose(c, l, r)
+                if s[y+1, x] == Material.EMPTY:
+                    s[y, x] = Material.EMPTY
+                    s[y+1, x] = Material.SAND
+                elif s[y+1, x+1] == Material.EMPTY and s[y+1, x-1] == Material.EMPTY:
+                    s[y, x] = Material.EMPTY
+                    s[y, x + np.random.choice([-1, 1])] = Material.SAND
+                elif s[y+1, x+1] == Material.EMPTY and s[y+1, x-1] != Material.EMPTY:
+                    s[y, x] = Material.EMPTY
+                    s[y+1, x+1] = Material.SAND
+                elif s[y+1, x+1] != Material.EMPTY and s[y+1, x-1] == Material.EMPTY:
+                    s[y, x] = Material.EMPTY
+                    s[y+1, x-1] = Material.SAND     
+                        
+                
+                 
         
-        self._types = back
+        
+        
 
     # ------------------------------------------------------------------ #
     # Rendering (boilerplate — nothing to do here)
