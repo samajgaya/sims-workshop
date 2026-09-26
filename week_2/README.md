@@ -16,11 +16,15 @@ Cellular automata with falling sand and water.
 > than being filled with zeros? What would happen to a grain that does not move
 > if G' started empty?
 
-A swap grid is used as a reference to read from.
+A swap grid is written to while the original grid is read from. If the swap grid
+started empty, then only the cells that moved would be written to it and the rest
+wouldn't appear in the new grid.
 
-## Your brief goes here
+> Question 2. Remove the randomised column order and replace it with a fixed left-to-right
+> scan. Run the simulation for a few hundred ticks. What happens to the shape of a sand pile?
+> Why?
 
-**Replace this file with your assignment brief.** It must contain your answers to
-**Question 1** and **Question 2**.
-
-Half a page is plenty.
+It appears that the particles prefer falling toward a particular direction.
+The final shape of the sand pile is not drastically different but the movement
+of the sand appears off.
+This is because a fixed left-to-right scan introduces some 'bias'.
