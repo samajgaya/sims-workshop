@@ -10,6 +10,14 @@ Cellular automata with falling sand and water.
 
 **Due: EOD, 23rd September 2026.**
 
+## Answers to in-text questions
+
+> Question 1. Why does the swap grid start as a copy of the current state, rather
+> than being filled with zeros? What would happen to a grain that does not move
+> if G' started empty?
+
+A swap grid is used as a reference to read from.
+
 ## Your brief goes here
 
 **Replace this file with your assignment brief.** It must contain your answers to
